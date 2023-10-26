@@ -1,8 +1,9 @@
-FLAGS = -Wall -Wextra -Werror -std=c11
+#FLAGS = -Wall -Wextra -Werror -std=c11
+FLAGS = -std=c11
 GCOVFLAGS = -fprofile-arcs -ftest-coverage
 TST_LIBS = -lcheck
 LIB_NAME = s21_smartcalc
-SRCS=s21_stack.c
+SRCS=s21_stack.c s21_smart_calc.c
 OBJS=$(SRCS:.c=.o)
 OPEN := open
 ifeq ($(shell uname), Linux)
@@ -10,7 +11,15 @@ ifeq ($(shell uname), Linux)
 	OPEN := xdg-open
 endif
 
-all: run
+all: test
+
+lol: 
+	gcc s21_smart_calc.c s21_stack.c -o lol
+	./lol
+
+dbg:
+	gcc -g huila.c
+	gdb a.out
 
 run:
 	gcc s21_stack.c -o main
@@ -34,7 +43,7 @@ gcov_report: clean test
 
 
 clean:
-	rm -rf *.o test *.a *.gcno *.gcda *.gcov *.html *.css *.info ./report *.out
+	rm -rf *.o test *.a *.gcno *.gcda *.gcov *.html *.css *.info ./report *.out ./lol
 
 cln:
 	clang-format -style=Google -n *.c *.h

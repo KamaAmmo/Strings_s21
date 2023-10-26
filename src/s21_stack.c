@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <stdbool.h>
 #include "s21_smart_calc.h"
 
 void display(stack top) {
@@ -12,8 +12,8 @@ void display(stack top) {
 }
 
 char isEmpty(stack top) {
-  if (top == NULL) return 1;
-  return 0;
+  if (top == NULL) return true;
+  return false;
 }
 
 void push(stack *top, char info) {
@@ -25,8 +25,8 @@ void push(stack *top, char info) {
 
 char pop(stack *top) {
   if (isEmpty(*top)) {
-    printf("Stack is empty");
-    return 0;
+    // printf("Stack is empty");
+    return -1;
   }
   char result = (*top)->data;
   node *temp = *top;

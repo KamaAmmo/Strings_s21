@@ -1,6 +1,7 @@
 #include <check.h>
-
+#include <stdio.h>
 #include "s21_smart_calc.h"
+#include <stdlib.h>
 
 START_TEST(s21_stack_test) {
   stack st = NULL;
@@ -15,10 +16,43 @@ START_TEST(s21_stack_test) {
   value = pop(&st);
   ck_assert_int_eq(value, 1);
   ck_assert_int_eq(isEmpty(st), 1);
+  value = pop(&st);
+  ck_assert_int_eq(value, -1);
   push(&st, 10);
   push(&st, 20);
   push(&st, 30);
   destroy(&st);
+}
+
+START_TEST(s21_parser_test){
+  char *str = "1+2-3";
+  char *res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 + 3 - ");
+  str = "1*2/3";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 * 3 / ");
+  str = "1+2*3";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 3 * + ");
+  str = "1*2+3";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 * 3 + ");
+  str = "1*2+3*4";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 * 3 4 * + ");
+  str = "1*(2+3)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 3 + * ");
+  str = "(1+2)*(3-4)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 + 3 4 - * ");
+  str = "((1+2)*3)-4";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 + 3 * 4 - ");
+  str = "1+2*(3-4/(5+6))";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 3 4 5 6 + / - * + ");
+  free(res);
 }
 
 Suite *s21_smart_calc_tests_create() {
@@ -26,6 +60,7 @@ Suite *s21_smart_calc_tests_create() {
   TCase *s21_smart_calc_tests = tcase_create("S21_SMART_CALC");
 
   tcase_add_test(s21_smart_calc_tests, s21_stack_test);
+  tcase_add_test(s21_smart_calc_tests, s21_parser_test);
 
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);
   return s21_smart_calc;
