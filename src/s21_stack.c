@@ -25,12 +25,31 @@ void push(stack *top, char info) {
   *top = newnode;
 }
 
+void pushNum(stack *top, double info){
+  node *newnode = (node *)malloc(sizeof(node));
+  newnode->num = info;
+  newnode->next = *top;
+  *top = newnode;
+}
+
 char pop(stack *top) {
   if (isEmpty(*top)) {
     // printf("Stack is empty");
     return -1;
   }
   char result = (*top)->data;
+  node *temp = *top;
+  *top = (*top)->next;
+  free(temp);
+  return result;
+}
+
+double popNum(stack *top) {
+  if (isEmpty(*top)) {
+    // printf("Stack is empty");
+    return -1;
+  }
+  double result = (*top)->num;
   node *temp = *top;
   *top = (*top)->next;
   free(temp);

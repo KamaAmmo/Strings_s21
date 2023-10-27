@@ -3,15 +3,11 @@
 #include <stdbool.h>
 
 typedef struct node {
-  // struct storage data
   char data;
+  double num;
   struct node *next;
 } node;
 
-// struct storage {
-//   char ch;
-//   double num;
-// }
 
 typedef node *stack;
 //stack
@@ -21,7 +17,8 @@ char pop(stack *top);
 char peak(stack top);
 void display(stack top);
 void destroy(stack *top);
-
+void pushNum(stack *top, double info);
+double popNum(stack *st);
 //RPN 
 bool isOperand(char ch);
 bool isOperator(char ch);
@@ -30,8 +27,10 @@ bool isCloseScope(char ch);
 int isComplexFun(char *str, stack *st);
 int getPriority(char ch);
 char *s21_parser(char *str);
+double s21_Compute(char *str);
+void computeOper(char op, stack *st);
 
 //helpers
 void printChAndSpace(char **str, char top);
-double s21_convertStrToNum(const char *str);
+double s21_convertStrToNum(char **str);
 #endif

@@ -22,58 +22,123 @@ START_TEST(s21_stack_test) {
   push(&st, 20);
   push(&st, 30);
   destroy(&st);
+
+  pushNum(&st, 42.5);
+  double val = popNum(&st);
+  ck_assert_double_eq(val, 42.5);
 }
 
 START_TEST(s21_parser_for_elem_test){
   char *str = "1+2-3";
   char *res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 + 3 - ");
+
   str = "1*2/3";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 * 3 / ");
+
   str = "1+2*3";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 3 * + ");
+
   str = "1*2+3";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 * 3 + ");
+
   str = "1*2+3*4";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 * 3 4 * + ");
+
   str = "1*(2+3)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 3 + * ");
+
   str = "(1+2)*(3-4)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 + 3 4 - * ");
+
   str = "((1+2)*3)-4";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 + 3 * 4 - ");
-  str = "1+2*(3-4/(5+6))";
+
+  str = "1+2*(3-4/(10+6))";
   res = s21_parser(str);
-  ck_assert_str_eq(res, "1 2 3 4 5 6 + / - * + ");
+  ck_assert_str_eq(res, "1 2 3 4 10 6 + / - * + ");
+
   free(res);
+}
+
+START_TEST(s21_compute_test){
+  char *str = "1 2 + ";
+  double res = s21_Compute(str);
+  ck_assert_double_eq(res, 3);
+
+  str = "1 2 + 3 -";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 0);
+
+  str = "3 2 * 3 / ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 2);
+
+  str = "1 2 3 * + ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 7);
+
+  str = "1 2 * 3 + ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 5);
+
+  str = "1 2 * 3 4 * + ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 14);
+
+  str = "1 2 3 + * ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 5);
+
+  str = "1 2 + 3 4 - * ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, -3);
+
+  str = "1 2 + 3 * 4 - ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 5);
+
+  str = "1 2 3 4 10 6 + / - * + ";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 6.5);
+
+  str = "5 -";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, -5);
+
+  str = "2 3 ^";
+  res = s21_Compute(str);
+  ck_assert_double_eq(res, 8);
+
 }
 
 START_TEST(s21_convertStrToNum_test){
   char *str = "255";
-  double res = s21_convertStrToNum(str);
+  double res = s21_convertStrToNum(&str);
   ck_assert_double_eq(res, 255);
   str = "1";
-  res = s21_convertStrToNum(str);
+  res = s21_convertStrToNum(&str);
   ck_assert_double_eq(res, 1);
   str = "12467";
-  res = s21_convertStrToNum(str);
+  res = s21_convertStrToNum(&str);
   ck_assert_double_eq(res, 12467);
-  str = "120.567";
-  res = s21_convertStrToNum(str);
+  str = "120.567tza";
+  res = s21_convertStrToNum(&str);
   ck_assert_double_eq(res, 120.567);
-  
 }
+
+
 
 // START_TEST(s21_parser_for_complex_test){
 //   char *str;
-//   char *res;
+//   char *res;&
 //   str = "1+cos(2)";
 //   res = s21_parser(str);
 //   ck_assert_pstr_eq(str, "2 cos 1 + ");
@@ -91,6 +156,7 @@ Suite *s21_smart_calc_tests_create() {
   tcase_add_test(s21_smart_calc_tests, s21_parser_for_elem_test);
   // tcase_add_test(s21_smart_calc_tests, s21_parser_for_complex_test);
   tcase_add_test(s21_smart_calc_tests, s21_convertStrToNum_test);
+  tcase_add_test(s21_smart_calc_tests, s21_compute_test);
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);
   return s21_smart_calc;
 }

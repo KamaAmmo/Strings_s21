@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <wchar.h>
+#include <math.h>
 
 
 bool isOperand(char ch){
@@ -31,7 +31,6 @@ bool isOperator(char ch){
         case '^':
         case '*':
         case '/':
-        case '%':
             res = true;
             break;
         default:
@@ -51,7 +50,6 @@ int getPriority(char ch){
         case '*':
         case '/':
         case '^':
-        case '%':
             res = 2;
             break;
         case '+':
@@ -118,23 +116,60 @@ char *s21_parser(char *str){
     return result;
 }
 
-
-
 double s21_Compute(char *str){
     stack st = NULL;
+    double result = 0;
     for (char *p = str; *p; p++){
         if (isdigit(*p)){
-            double number = s21_convertStrToNum(p);
-            push(&st, num);
+            double number = s21_convertStrToNum(&p);
+            pushNum(&st, number);
         }
-        
+        if (isOperator(*p)){
+            if (!(isEmpty(st))){
+                computeOper(*p, &st);
+            } 
+        }
     }
+    result = popNum(&st);
+    return result;
 }
 
-double s21_convertStrToNum(const char *str){
-    char *p = (char *)str;
-    for (; isdigit(*p) || *p == '.'; p++){}
-    return strtod(str, &p);
+void computeOper(char op, stack *st){
+    double b = popNum(st); 
+    double a = 0;
+    if (!(isEmpty(*st))){
+        a = popNum(st);
+    }
+    double c;
+    switch (op)
+    {
+        case '+':
+            c = a + b;
+            break;
+        case '-':
+            c = a - b;
+            break;
+        case '*':
+            c = a * b;
+            break;
+        case '/':
+            c =  a / b;
+            break;
+        case '^':
+            c = pow(a, b);
+            break;
+    }
+    pushNum(st, c);
+    
+}
+
+double s21_convertStrToNum(char **str){
+    char *p = *str;
+    int len = 0;
+    for (; isdigit(*p) || *p == '.'; len++, p++){}
+    double result = strtod(*str, &p);
+    *str = *(str) + len;
+    return result;
 }
 
 void printChAndSpace(char **str, char top){
