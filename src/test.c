@@ -24,7 +24,7 @@ START_TEST(s21_stack_test) {
   destroy(&st);
 }
 
-START_TEST(s21_parser_test){
+START_TEST(s21_parser_for_elem_test){
   char *str = "1+2-3";
   char *res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 + 3 - ");
@@ -55,13 +55,42 @@ START_TEST(s21_parser_test){
   free(res);
 }
 
+START_TEST(s21_convertStrToNum_test){
+  char *str = "255";
+  double res = s21_convertStrToNum(str);
+  ck_assert_double_eq(res, 255);
+  str = "1";
+  res = s21_convertStrToNum(str);
+  ck_assert_double_eq(res, 1);
+  str = "12467";
+  res = s21_convertStrToNum(str);
+  ck_assert_double_eq(res, 12467);
+  str = "120.567";
+  res = s21_convertStrToNum(str);
+  ck_assert_double_eq(res, 120.567);
+  
+}
+
+// START_TEST(s21_parser_for_complex_test){
+//   char *str;
+//   char *res;
+//   str = "1+cos(2)";
+//   res = s21_parser(str);
+//   ck_assert_pstr_eq(str, "2 cos 1 + ");
+//   str = "1*sin(2+3)";
+//   res = s21_parser(str);
+//   ck_assert_pstr_eq(str, "2 3 + sin 1 * ");
+
+// }
+
 Suite *s21_smart_calc_tests_create() {
   Suite *s21_smart_calc = suite_create("s21_smart_calc");
   TCase *s21_smart_calc_tests = tcase_create("S21_SMART_CALC");
 
   tcase_add_test(s21_smart_calc_tests, s21_stack_test);
-  tcase_add_test(s21_smart_calc_tests, s21_parser_test);
-
+  tcase_add_test(s21_smart_calc_tests, s21_parser_for_elem_test);
+  // tcase_add_test(s21_smart_calc_tests, s21_parser_for_complex_test);
+  tcase_add_test(s21_smart_calc_tests, s21_convertStrToNum_test);
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);
   return s21_smart_calc;
 }

@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "s21_smart_calc.h"
+
 
 void display(stack top) {
   while (top != NULL) {
@@ -43,4 +45,11 @@ void destroy(stack *top) {
     *top = (*top)->next;
     free(temp);
   }
+}
+
+void pushStrToStack(stack *st, char *str){
+    int len = strlen(str);
+    for (int i = 0; i < len; i++){
+        push(st, str[len - 1 - i]);
+    }
 }
