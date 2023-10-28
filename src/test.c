@@ -173,6 +173,10 @@ START_TEST(s21_parser_for_complex_test){
   str = "1+ln(2+3)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 3 + ln + ");
+  str = "1+ln(2+3*4)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 3 4 * + ln + ");
+
 }
 
 Suite *s21_smart_calc_tests_create() {

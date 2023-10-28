@@ -32,6 +32,6 @@ void computeOper(char op, stack *st);
 char getFun(char *str, stack *st);
 //helpers
 void printChAndSpace(char **str, char top);
-void printFunAndSpace(char **ptr, char token, char *res);
+void printFunAndSpace(char **ptr, char token);
 double s21_convertStrToNum(char **str);
 #endif

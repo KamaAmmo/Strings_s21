@@ -90,7 +90,7 @@ char *s21_parser(char *str){
                 char top = pop(&st);
                 if (top != '('){
                     if (isdigit(top)){
-                        printFunAndSpace(&ptr, top, result);
+                        printFunAndSpace(&ptr, top);
                     } else{
                         printChAndSpace(&ptr, top);
                     }
@@ -103,25 +103,16 @@ char *s21_parser(char *str){
         } else if (isOperator(cur) || isComplexFun(ch)){
             int len = isComplexFun(ch);
             if (len){
-                // printf("\n%s\n", ch);
                 char fun[len + 1];
                 strlcpy(fun, ch, len + 1);
-                // printf("%s:", fun);
                 cur =  getFun(fun, &st);
-                // cur  = 'f';
                 ch += len - 1;
-                // printf("\n\n%s\n", ch);
             }
             if (isEmpty(st)) 
                 push(&st, cur);
             else {
                 while (!isEmpty(st)){
-                    // int token = -1;
                     char top = pop(&st);
-                    // if (isdigit(top)){
-                    //     token = (int)top - 48;
-                    //     // top = 'f';
-                    // }
                     if (isOpenScope(top)) {
                         break;
                     }
@@ -131,7 +122,7 @@ char *s21_parser(char *str){
                     }   
                     else if (getPriority(top) >= getPriority(cur)) {
                         if (isdigit(top)){
-                            printFunAndSpace(&ptr, top, result);
+                            printFunAndSpace(&ptr, top);
                         } else {
                             printChAndSpace(&ptr, top);
                         }
@@ -145,7 +136,7 @@ char *s21_parser(char *str){
     while (!isEmpty(st)){
         char top = pop(&st);
         if (isdigit(top)){
-            printFunAndSpace(&ptr, top, result);
+            printFunAndSpace(&ptr, top);
         } else {
             printChAndSpace(&ptr, top);
         }
@@ -175,12 +166,10 @@ char getFun(char *str, stack *st){
     } else if (strcmp(str, "log") == 0){
         token = '9';
     }
-    // push(st, token);
     return token;
 }
 
-void printFunAndSpace(char **ptr, char token, char *res){
-    // printf("\nsuka:%s\n", res);
+void printFunAndSpace(char **ptr, char token){
     **ptr = '\0';
     if (token == '1'){
         strcat(*ptr, "cos ");
@@ -201,7 +190,6 @@ void printFunAndSpace(char **ptr, char token, char *res){
     }  else if (token == '9'){
         strcat(*ptr, "log ");
     }
-    // printf(" \n\n    %c     ", token);
     if (token >= '4' && token <= '7'){
         *ptr += 5;
     } else if (token == '8'){
@@ -209,8 +197,6 @@ void printFunAndSpace(char **ptr, char token, char *res){
     } else if (token >= '1' && token <= '3'){
         *ptr += 4;
     }
-    // printf("\ns2:%s\n", res);
-    
 }
 
 

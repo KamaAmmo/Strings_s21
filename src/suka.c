@@ -103,25 +103,16 @@ char *s21_parser(char *str){
         } else if (isOperator(cur) || isComplexFun(ch)){
             int len = isComplexFun(ch);
             if (len){
-                // printf("\n%s\n", ch);
                 char fun[len + 1];
                 strlcpy(fun, ch, len + 1);
-                // printf("\n%s\n", fun);
                 cur =  getFun(fun, &st);
-                // cur  = 'f';
                 ch += len - 1 ;
-                // printf("\n\n%s\n", ch);
             }
             if (isEmpty(st)) 
                 push(&st, cur);
             else {
                 while (!isEmpty(st)){
-                    // int token = -1;
                     char top = pop(&st);
-                    // if (isdigit(top)){
-                    //     token = (int)top - 48;
-                    //     // top = 'f';
-                    // }
                     if (isOpenScope(top)) {
                         break;
                     }
@@ -180,7 +171,6 @@ char getFun(char *str, stack *st){
 }
 
 void printFunAndSpace(char **ptr, char token, char *res){
-    // printf("\nsuka:%c\n", res);
     if (token == '1'){
         strcat(*ptr, "cos ");    
     } else if (token == '2'){
@@ -200,7 +190,6 @@ void printFunAndSpace(char **ptr, char token, char *res){
     }  else if (token == '9'){
         strcat(*ptr, "log ");
     }
-    // printf(" \n\n    %c     ", token);
     if (token >= '4' && token <= '7'){
         *ptr += 5;
     } else if (token == '8'){
