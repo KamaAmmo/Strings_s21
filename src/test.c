@@ -134,16 +134,16 @@ START_TEST(s21_compute_test){
 
 START_TEST(s21_convertStrToNum_test){
   char *str = "255";
-  double res = s21_convertStrToNum(&str);
+  double res = convertStrToNum(&str);
   ck_assert_double_eq(res, 255);
   str = "1";
-  res = s21_convertStrToNum(&str);
+  res = convertStrToNum(&str);
   ck_assert_double_eq(res, 1);
   str = "12467";
-  res = s21_convertStrToNum(&str);
+  res = convertStrToNum(&str);
   ck_assert_double_eq(res, 12467);
   str = "120.567tza";
-  res = s21_convertStrToNum(&str);
+  res = convertStrToNum(&str);
   ck_assert_double_eq(res, 120.567);
 }
 

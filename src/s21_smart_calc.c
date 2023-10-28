@@ -160,7 +160,7 @@ double s21_compute(char *str){
     double result = 0;
     for (char *p = str; *p; p++){
         if (isdigit(*p)){
-            double number = s21_convertStrToNum(&p);
+            double number = convertStrToNum(&p);
             pushNum(&st, number);
         } else if (isOperator(*p)){
             if (!(isEmpty(st))){
@@ -184,6 +184,7 @@ double s21_compute(char *str){
 void computeOper(char op, stack *st){
     double b = popNum(st); 
     double a = 0;
+    bool is_unary = false;
     if (!(isEmpty(*st))){
         a = popNum(st);
     }
@@ -204,36 +205,46 @@ void computeOper(char op, stack *st){
             break;
         case '^':
             c = pow(a, b);
+            is_unary = true;
             break;
         case '1':
             c = cos(b);
+            is_unary = true;
             break;
         case '2':
             c = sin(b);
+            is_unary = true;
             break;
         case '3':
             c = tan(b);
+            is_unary = true;
             break;
         case '4':
             c = acos(b);
+            is_unary = true;
             break;
         case '5':
             c = asin(b);
+            is_unary = true;
             break;
         case '6':
             c = atan(b);
+            is_unary = true;
             break;
         case '7':
             c = sqrt(b);
+            is_unary = true;
             break;
         case '8':
             c = log(b);
+            is_unary = true;
             break;
         case '9':
             c = log10(b);
+            is_unary = true;
             break;
     }
-    if (isdigit(op)){ //is Unary operator
+    if (is_unary){
         pushNum(st, a);
     }
     pushNum(st, c); 
@@ -241,7 +252,7 @@ void computeOper(char op, stack *st){
 
 
 
-double s21_convertStrToNum(char **str){
+double convertStrToNum(char **str){
     char *p = *str;
     int len = 0;
     for (; isdigit(*p) || *p == '.'; len++, p++){}

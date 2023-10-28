@@ -34,5 +34,5 @@ double s21_calculate(char *str);
 //helpers
 void printChAndSpace(char **str, char top);
 void printFunAndSpace(char **ptr, char token);
-double s21_convertStrToNum(char **str);
+double convertStrToNum(char **str);
 #endif
