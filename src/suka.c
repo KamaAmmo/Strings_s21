@@ -73,7 +73,7 @@ char *s21_parser(char *str){
     stack st = NULL;
     char *result = (char *)malloc(sizeof(char) * 255);
     char *ptr = result;
-    for (char *ch  = str; *ch != '\0'; ++ch){
+    for (char *ch  = str; *ch != '\0'; ch++){
         char cur = *ch;
         if (isdigit(cur) || cur == '.'){
             *ptr = cur;
@@ -106,10 +106,10 @@ char *s21_parser(char *str){
                 // printf("\n%s\n", ch);
                 char fun[len + 1];
                 strlcpy(fun, ch, len + 1);
-                // printf("%s:", fun);
+                // printf("\n%s\n", fun);
                 cur =  getFun(fun, &st);
                 // cur  = 'f';
-                ch += len - 1;
+                ch += len - 1 ;
                 // printf("\n\n%s\n", ch);
             }
             if (isEmpty(st)) 
@@ -180,10 +180,9 @@ char getFun(char *str, stack *st){
 }
 
 void printFunAndSpace(char **ptr, char token, char *res){
-    // printf("\nsuka:%s\n", res);
-    **ptr = '\0';
+    // printf("\nsuka:%c\n", res);
     if (token == '1'){
-        strcat(*ptr, "cos ");
+        strcat(*ptr, "cos ");    
     } else if (token == '2'){
         strcat(*ptr, "sin ");
     }  else if (token == '3'){
@@ -209,7 +208,6 @@ void printFunAndSpace(char **ptr, char token, char *res){
     } else if (token >= '1' && token <= '3'){
         *ptr += 4;
     }
-    // printf("\ns2:%s\n", res);
     
 }
 
@@ -254,7 +252,7 @@ void computeOper(char op, stack *st){
             c =  a / b;
             break;
         case '^':
-            c = pow(a, b);
+            c = a * b;
             break;
     }
     pushNum(st, c); 
@@ -296,3 +294,76 @@ int isComplexFun(char *str){
 }
 
 
+void display(stack top) {
+  while (top != NULL) {
+    putchar((*top).data);
+    top = (*top).next;
+  }
+  putchar(' ');
+}
+
+char isEmpty(stack top) {
+  if (top == NULL) return true;
+  return false;
+}
+
+void push(stack *top, char info) {
+  node *newnode = (node *)malloc(sizeof(node));
+  newnode->data = info;
+  newnode->next = *top;
+  *top = newnode;
+}
+
+void pushNum(stack *top, double info){
+  node *newnode = (node *)malloc(sizeof(node));
+  newnode->num = info;
+  newnode->next = *top;
+  *top = newnode;
+}
+
+char pop(stack *top) {
+  if (isEmpty(*top)) {
+    // printf("Stack is empty");
+    return -1;
+  }
+  char result = (*top)->data;
+  node *temp = *top;
+  *top = (*top)->next;
+  free(temp);
+  return result;
+}
+
+double popNum(stack *top) {
+  if (isEmpty(*top)) {
+    // printf("Stack is empty");
+    return -1;
+  }
+  double result = (*top)->num;
+  node *temp = *top;
+  *top = (*top)->next;
+  free(temp);
+  return result;
+}
+
+char peak(stack top) { return (*top).data; }
+
+void destroy(stack *top) {
+  while (*top != NULL) {
+    node *temp = (*top);
+    *top = (*top)->next;
+    free(temp);
+  }
+}
+
+void pushStrToStack(stack *st, char *str){
+    int len = strlen(str);
+    for (int i = 0; i < len; i++){
+        push(st, str[len - 1 - i]);
+    }
+}
+
+int main(){
+    char *str = "1+cos2";
+    char *res = s21_parser(str);
+    printf(res);
+}

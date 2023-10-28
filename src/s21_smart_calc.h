@@ -24,13 +24,14 @@ bool isOperand(char ch);
 bool isOperator(char ch);
 bool isOpenScope(char ch);
 bool isCloseScope(char ch);
-int isComplexFun(char *str, stack *st);
+int isComplexFun(char *str);
 int getPriority(char ch);
 char *s21_parser(char *str);
 double s21_Compute(char *str);
 void computeOper(char op, stack *st);
-
+char getFun(char *str, stack *st);
 //helpers
 void printChAndSpace(char **str, char top);
+void printFunAndSpace(char **ptr, char token, char *res);
 double s21_convertStrToNum(char **str);
 #endif

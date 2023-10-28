@@ -134,19 +134,46 @@ START_TEST(s21_convertStrToNum_test){
   ck_assert_double_eq(res, 120.567);
 }
 
+START_TEST(s21_isComplexFun_test){
+  char *str = "cos";
+  int len = isComplexFun(str);
+  ck_assert_int_eq(len, 3);
+
+  str = "sqrt";
+  len = isComplexFun(str);
+  ck_assert_int_eq(len, 4);
+
+  str = "sin";
+  len = isComplexFun(str);
+  ck_assert_int_eq(len, 3);
+
+  str = "log";
+  len = isComplexFun(str);
+  ck_assert_int_eq(len, 3);
+
+  str = "ln";
+  len = isComplexFun(str);
+  ck_assert_int_eq(len, 2);
+
+  str = "atan";
+  len = isComplexFun(str);
+  ck_assert_int_eq(len, 4);
+}
 
 
-// START_TEST(s21_parser_for_complex_test){
-//   char *str;
-//   char *res;&
-//   str = "1+cos(2)";
-//   res = s21_parser(str);
-//   ck_assert_pstr_eq(str, "2 cos 1 + ");
-//   str = "1*sin(2+3)";
-//   res = s21_parser(str);
-//   ck_assert_pstr_eq(str, "2 3 + sin 1 * ");
-
-// }
+START_TEST(s21_parser_for_complex_test){
+  char *str;
+  char *res;
+  str = "1+cos(2)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 cos + ");
+  str = "1+atan(3)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 3 atan + ");
+  str = "1+ln(2+3)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1 2 3 + ln + ");
+}
 
 Suite *s21_smart_calc_tests_create() {
   Suite *s21_smart_calc = suite_create("s21_smart_calc");
@@ -154,10 +181,14 @@ Suite *s21_smart_calc_tests_create() {
 
   tcase_add_test(s21_smart_calc_tests, s21_stack_test);
   tcase_add_test(s21_smart_calc_tests, s21_parser_for_elem_test);
-  // tcase_add_test(s21_smart_calc_tests, s21_parser_for_complex_test);
+  tcase_add_test(s21_smart_calc_tests, s21_parser_for_complex_test);
   tcase_add_test(s21_smart_calc_tests, s21_convertStrToNum_test);
   tcase_add_test(s21_smart_calc_tests, s21_compute_test);
+  tcase_add_test(s21_smart_calc_tests, s21_isComplexFun_test);
+
+
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);
+  
   return s21_smart_calc;
 }
 
