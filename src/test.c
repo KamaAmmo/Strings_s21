@@ -65,57 +65,70 @@ START_TEST(s21_parser_for_elem_test){
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 3 4 10 6 + / - * + ");
 
+  str = "2.5*2";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "2.5 2 * ");
+
+  str = "2*(12*2*3+25)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "2 12 2 * 3 * 25 + * ");
+
+
   free(res);
 }
 
 START_TEST(s21_compute_test){
   char *str = "1 2 + ";
-  double res = s21_Compute(str);
+  double res = s21_compute(str);
   ck_assert_double_eq(res, 3);
 
   str = "1 2 + 3 -";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 0);
 
   str = "3 2 * 3 / ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 2);
 
   str = "1 2 3 * + ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 7);
 
   str = "1 2 * 3 + ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 5);
 
   str = "1 2 * 3 4 * + ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 14);
 
   str = "1 2 3 + * ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 5);
 
   str = "1 2 + 3 4 - * ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, -3);
 
   str = "1 2 + 3 * 4 - ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 5);
 
   str = "1 2 3 4 10 6 + / - * + ";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 6.5);
 
   str = "5 -";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, -5);
 
   str = "2 3 ^";
-  res = s21_Compute(str);
+  res = s21_compute(str);
   ck_assert_double_eq(res, 8);
+
+  str = "2.5 2 * ";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, 5);
 
 }
 
@@ -147,6 +160,7 @@ START_TEST(s21_isComplexFun_test){
   len = isComplexFun(str);
   ck_assert_int_eq(len, 3);
 
+  
   str = "log";
   len = isComplexFun(str);
   ck_assert_int_eq(len, 3);
@@ -176,6 +190,86 @@ START_TEST(s21_parser_for_complex_test){
   str = "1+ln(2+3*4)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 3 4 * + ln + ");
+  str = "sqrt(12*2)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "12 2 * sqrt ");
+  str = "sqrt(12.5*2*3+25)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "12.5 2 * 3 * 25 + sqrt ");
+
+  // str = "sin(log(3)+4)/(97*log(7))";
+  // res = s21_parser(str);
+  // ck_assert_str_eq(res, "3 log 4 + sin 97 7 log * / ");
+
+  str = "2*(97*log(7))";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "2 97 7 log * * ");
+
+  str = "log(3)+4";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "3 log 4 + ");
+
+  free(res);
+}
+
+
+START_TEST(s21_compute_functions_test){
+  char *str = "2 cos ";
+  double res = s21_compute(str);
+  ck_assert_double_eq(res, cos(2));
+
+  str = "1 3 cos +";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, 1+cos(3));
+
+  str = "1 3 atan +";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, 1+atan(3));
+
+  str = "1 2 3 + ln +";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, 1+log(2+3));
+
+  str = "1 2 3 4 * + ln +";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, 1+log(2+3*4));
+
+  // str = "3 log 4 + sin 97 7 log * / ";
+  // res = s21_compute(str);
+  // ck_assert_double_eq(res, sin(log(3)+4)/(97*log(7)) );
+  
+}
+
+START_TEST(s21_final_test){
+  char *str = "1+2*3";
+  double res = s21_calculate(str);
+  ck_assert_double_eq(res, 1+2*3);
+
+  str = "5*32/2";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, 5*32/2);
+
+  str = "sin(14/7)";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, sin(14/7));
+
+  str = "sqrt(12.5*2)";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, sqrt(12.5*2));
+
+  str = "sqrt(12.5*2*3+25)";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, sqrt(12.5*2*3+25));
+
+  str = "cos(sqrt(12.5*2*3+25)/2)*4.5";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, cos(sqrt(12.5*2*3+25)/2)*4.5);
+
+
+
+  str = "sin(ln(3)+4)/(97*ln(7))";
+  res = s21_calculate(str);
+  ck_assert_double_eq(res, sin(log(3)+4)/(97*log(7)));
 
 }
 
@@ -189,6 +283,8 @@ Suite *s21_smart_calc_tests_create() {
   tcase_add_test(s21_smart_calc_tests, s21_convertStrToNum_test);
   tcase_add_test(s21_smart_calc_tests, s21_compute_test);
   tcase_add_test(s21_smart_calc_tests, s21_isComplexFun_test);
+  tcase_add_test(s21_smart_calc_tests, s21_compute_functions_test);
+  tcase_add_test(s21_smart_calc_tests, s21_final_test);
 
 
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);

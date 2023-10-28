@@ -45,11 +45,8 @@ int getPriority(char ch){
     switch (ch)
     {
         case '(': 
-            res = 3;
+            res = 4;
             break;
-        case '*':
-        case '/':
-        case '^':
         case '1':
         case '2':
         case '3':
@@ -59,6 +56,11 @@ int getPriority(char ch){
         case '7':
         case '8':
         case '9':
+            res = 3;
+            break;
+        case '*':
+        case '/':
+        case '^':
             res = 2;
             break;
         case '+':
@@ -66,6 +68,13 @@ int getPriority(char ch){
             res = 1;
             break;
     }
+    return res;
+}
+
+double s21_calculate(char *str) {
+    char *postfix = s21_parser(str);
+    double res = s21_compute(postfix);
+    free(postfix);
     return res;
 }
 
@@ -78,7 +87,8 @@ char *s21_parser(char *str){
         if (isdigit(cur) || cur == '.'){
             *ptr = cur;
             ptr++;
-            if (*(ch + 1) && !(isdigit(*(ch + 1)))){
+
+            if ( *(ch + 1) && !(isdigit(*(ch + 1))) && (*(ch + 1) != '.') ){
                 *ptr = ' ';
                 ptr++;
             } else if (!*(ch + 1)){
@@ -105,7 +115,7 @@ char *s21_parser(char *str){
             if (len){
                 char fun[len + 1];
                 strlcpy(fun, ch, len + 1);
-                cur =  getFun(fun, &st);
+                cur =  getToken(fun);
                 ch += len - 1;
             }
             if (isEmpty(st)) 
@@ -114,6 +124,7 @@ char *s21_parser(char *str){
                 while (!isEmpty(st)){
                     char top = pop(&st);
                     if (isOpenScope(top)) {
+                        push(&st, top);
                         break;
                     }
                     else if (getPriority(top) < getPriority(cur)) {
@@ -131,7 +142,6 @@ char *s21_parser(char *str){
                 push(&st, cur);
             } 
         } 
-        
     }
     while (!isEmpty(st)){
         char top = pop(&st);
@@ -145,7 +155,122 @@ char *s21_parser(char *str){
     return result;
 }
 
-char getFun(char *str, stack *st){
+double s21_compute(char *str){
+    stack st = NULL;
+    double result = 0;
+    for (char *p = str; *p; p++){
+        if (isdigit(*p)){
+            double number = s21_convertStrToNum(&p);
+            pushNum(&st, number);
+        } else if (isOperator(*p)){
+            if (!(isEmpty(st))){
+                computeOper(*p, &st);
+            } 
+        } else if (isComplexFun(p)){
+            int len = isComplexFun(p);
+            char fun[len + 1];
+            strlcpy(fun, p, len + 1);
+            p += len - 1;
+            char token = getToken(fun);
+            if  (!isEmpty(st)){
+                computeOper(token, &st);
+            }
+        }
+    }
+    result = popNum(&st);
+    return result;
+}
+
+void computeOper(char op, stack *st){
+    double b = popNum(st); 
+    double a = 0;
+    if (!(isEmpty(*st))){
+        a = popNum(st);
+    }
+    double c;
+    switch (op)
+    {
+        case '+':
+            c = a + b;
+            break;
+        case '-':
+            c = a - b;
+            break;
+        case '*':
+            c = a * b;
+            break;
+        case '/':
+            c =  a / b;
+            break;
+        case '^':
+            c = pow(a, b);
+            break;
+        case '1':
+            c = cos(b);
+            break;
+        case '2':
+            c = sin(b);
+            break;
+        case '3':
+            c = tan(b);
+            break;
+        case '4':
+            c = acos(b);
+            break;
+        case '5':
+            c = asin(b);
+            break;
+        case '6':
+            c = atan(b);
+            break;
+        case '7':
+            c = sqrt(b);
+            break;
+        case '8':
+            c = log(b);
+            break;
+        case '9':
+            c = log10(b);
+            break;
+    }
+    if (isdigit(op)){ //is Unary operator
+        pushNum(st, a);
+    }
+    pushNum(st, c); 
+}
+
+
+
+double s21_convertStrToNum(char **str){
+    char *p = *str;
+    int len = 0;
+    for (; isdigit(*p) || *p == '.'; len++, p++){}
+    double result = strtod(*str, &p);
+    *str = *(str) + len;
+    return result;
+}
+
+void printChAndSpace(char **str, char top){
+    **str = top;
+    (*str)++;
+    **str = ' ';
+    (*str)++;
+}
+
+int isComplexFun(char *str){
+    int res = 0;
+    if (*str == 'a' || (*str == 's' && *(str + 1) == 'q')){
+        res = 4; 
+    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o')){
+        res = 3; //cos tan sin log
+    } else if (*str == 'l' && *(str + 1) == 'n'){
+        res = 2;
+    } 
+    return res;
+}
+
+
+char getToken(char *str){
     char token = '0';
     if (strcmp(str, "cos") == 0){
         token = '1';
@@ -194,91 +319,7 @@ void printFunAndSpace(char **ptr, char token){
         *ptr += 5;
     } else if (token == '8'){
         *ptr += 3;
-    } else if (token >= '1' && token <= '3'){
+    } else if ((token >= '1' && token <= '3') || token == '9'){
         *ptr += 4;
     }
 }
-
-
-double s21_Compute(char *str){
-    stack st = NULL;
-    double result = 0;
-    for (char *p = str; *p; p++){
-        if (isdigit(*p)){
-            double number = s21_convertStrToNum(&p);
-            pushNum(&st, number);
-        }
-        if (isOperator(*p)){
-            if (!(isEmpty(st))){
-                computeOper(*p, &st);
-            } 
-        }
-    }
-    result = popNum(&st);
-    return result;
-}
-
-void computeOper(char op, stack *st){
-    double b = popNum(st); 
-    double a = 0;
-    if (!(isEmpty(*st))){
-        a = popNum(st);
-    }
-    double c;
-    switch (op)
-    {
-        case '+':
-            c = a + b;
-            break;
-        case '-':
-            c = a - b;
-            break;
-        case '*':
-            c = a * b;
-            break;
-        case '/':
-            c =  a / b;
-            break;
-        case '^':
-            c = pow(a, b);
-            break;
-    }
-    pushNum(st, c); 
-}
-
-
-
-double s21_convertStrToNum(char **str){
-    char *p = *str;
-    int len = 0;
-    for (; isdigit(*p) || *p == '.'; len++, p++){}
-    double result = strtod(*str, &p);
-    *str = *(str) + len;
-    return result;
-}
-
-void printChAndSpace(char **str, char top){
-    **str = top;
-    (*str)++;
-    **str = ' ';
-    (*str)++;
-}
-
-int isComplexFun(char *str){
-    int res = 0;
-    if (*str == 'a' || (*str == 's' && *(str + 1) == 'q')){
-        // if (*(str + 1) == 'c' && *(str + 1) == 'o' && *(str + 1) == 's') || 
-        // (*(str + 1) == 's' && *(str + 1) == 'i' && *(str + 1) == 'n') ||
-        // (*(str + 1) == 't' && *(str + 1) == 'a' && *(str + 1) == 'n') {
-        //     res = 4
-        // }
-        res = 4; 
-    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o')){
-        res = 3; //cos tan sin log
-    } else if (*str == 'l' && *(str + 1) == 'n'){
-        res = 2;
-    } 
-    return res;
-}
-
-

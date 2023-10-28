@@ -27,9 +27,10 @@ bool isCloseScope(char ch);
 int isComplexFun(char *str);
 int getPriority(char ch);
 char *s21_parser(char *str);
-double s21_Compute(char *str);
+double s21_compute(char *str);
 void computeOper(char op, stack *st);
-char getFun(char *str, stack *st);
+char getToken(char *str);
+double s21_calculate(char *str);
 //helpers
 void printChAndSpace(char **str, char top);
 void printFunAndSpace(char **ptr, char token);
