@@ -2,30 +2,36 @@
 #include <stdio.h>
 #include "s21_smart_calc.h"
 #include <stdlib.h>
+#include <stdbool.h>
 
 START_TEST(s21_stack_test) {
   stack st = NULL;
-  int value;
-  push(&st, 1);
-  value = peak(st);
-  ck_assert_int_eq(value, 1);
-  push(&st, 2);
-  value = pop(&st);
-  ck_assert_int_eq(value, 2);
-  ck_assert_int_eq(isEmpty(st), 0);
-  value = pop(&st);
-  ck_assert_int_eq(value, 1);
-  ck_assert_int_eq(isEmpty(st), 1);
-  value = pop(&st);
-  ck_assert_int_eq(value, -1);
-  push(&st, 10);
-  push(&st, 20);
-  push(&st, 30);
-  destroy(&st);
+  char *str = NULL;
+  push(&st, "+");
+  str = pop(&st);
+  ck_assert_str_eq(str, "+");
+  free(str);
 
+  push(&st, "-");
+  str = pop(&st);
+  ck_assert_str_eq(str, "-");
+  free(str);
+
+  push(&st, "cos");
+  str = pop(&st);
+  ck_assert_str_eq(str, "cos");
+  free(str);
+
+  push(&st, "sqrt");
+  str = pop(&st);
+  ck_assert_str_eq(str, "sqrt");
+  free(str);
+
+  destroy(&st);
   pushNum(&st, 42.5);
   double val = popNum(&st);
   ck_assert_double_eq(val, 42.5);
+  destroy(&st);
 }
 
 START_TEST(s21_parser_for_elem_test){
@@ -72,7 +78,6 @@ START_TEST(s21_parser_for_elem_test){
   str = "2*(12*2*3+25)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "2 12 2 * 3 * 25 + * ");
-
 
   free(res);
 }
@@ -122,7 +127,7 @@ START_TEST(s21_compute_test){
   res = s21_compute(str);
   ck_assert_double_eq(res, -5);
 
-  str = "2 3 ^";
+  str = "2 3 pow";
   res = s21_compute(str);
   ck_assert_double_eq(res, 8);
 
@@ -181,6 +186,11 @@ START_TEST(s21_parser_for_complex_test){
   str = "1+cos(2)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 2 cos + ");
+
+  str = "cos(sqrt(2+5)/3)";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "2 5 + sqrt 3 / cos ");
+
   str = "1+atan(3)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "1 3 atan + ");
@@ -197,9 +207,9 @@ START_TEST(s21_parser_for_complex_test){
   res = s21_parser(str);
   ck_assert_str_eq(res, "12.5 2 * 3 * 25 + sqrt ");
 
-  // str = "sin(log(3)+4)/(97*log(7))";
-  // res = s21_parser(str);
-  // ck_assert_str_eq(res, "3 log 4 + sin 97 7 log * / ");
+  str = "sin(log(3)+4)/(97*log(7))";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "3 log 4 + sin 97 7 log * / ");
 
   str = "2*(97*log(7))";
   res = s21_parser(str);
@@ -208,6 +218,10 @@ START_TEST(s21_parser_for_complex_test){
   str = "log(3)+4";
   res = s21_parser(str);
   ck_assert_str_eq(res, "3 log 4 + ");
+
+  str = "sqrt(12.5*2*3+25)/2";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "12.5 2 * 3 * 25 + sqrt 2 / ");
 
   free(res);
 }
@@ -234,9 +248,9 @@ START_TEST(s21_compute_functions_test){
   res = s21_compute(str);
   ck_assert_double_eq(res, 1+log(2+3*4));
 
-  // str = "3 log 4 + sin 97 7 log * / ";
-  // res = s21_compute(str);
-  // ck_assert_double_eq(res, sin(log(3)+4)/(97*log(7)) );
+  str = "3 ln 4 + sin 97 7 ln * / ";
+  res = s21_compute(str);
+  ck_assert_double_eq(res, sin(log(3)+4)/(97*log(7)) );
   
 }
 
@@ -265,12 +279,9 @@ START_TEST(s21_final_test){
   res = s21_calculate(str);
   ck_assert_double_eq(res, cos(sqrt(12.5*2*3+25)/2)*4.5);
 
-
-
   str = "sin(ln(3)+4)/(97*ln(7))";
   res = s21_calculate(str);
   ck_assert_double_eq(res, sin(log(3)+4)/(97*log(7)));
-
 }
 
 Suite *s21_smart_calc_tests_create() {

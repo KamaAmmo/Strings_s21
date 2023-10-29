@@ -6,7 +6,6 @@
 #include <string.h>
 #include <math.h>
 
-
 bool isOperand(char ch){
     bool result = false;
     if ((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) 
@@ -39,34 +38,18 @@ bool isOperator(char ch){
     return res;
 }
 
-
-int getPriority(char ch){
+int getPriority(char *str){
     int res;
-    switch (ch)
-    {
-        case '(': 
-            res = 4;
-            break;
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
+    if (strcmp(str, "(") == 0){
+        res = 4;
+    } else if (strcmp(str, "cos") == 0 || strcmp(str, "sin") == 0 || strcmp(str, "tan") == 0 
+        || strcmp(str, "acos") == 0  || strcmp(str, "asin") == 0  || strcmp(str, "atan") == 0 
+        || strcmp(str, "sqrt") == 0  || strcmp(str, "ln") == 0  || strcmp(str, "log") == 0  || strcmp(str, "pow") == 0 ){
             res = 3;
-            break;
-        case '*':
-        case '/':
-        case '^':
-            res = 2;
-            break;
-        case '+':
-        case '-':
-            res = 1;
-            break;
+    } else if (strcmp(str, "*") == 0  || strcmp(str, "/") == 0  || strcmp(str, "mod") == 0 ){
+        res = 2;
+    } else if (strcmp(str, "+") == 0 || strcmp(str, "-") == 0 ){
+        res = 1;
     }
     return res;
 }
@@ -97,59 +80,60 @@ char *s21_parser(char *str){
             }
         } else if (isCloseScope(cur)){
             while (!isEmpty(st)){
-                char top = pop(&st);
-                if (top != '('){
-                    if (isdigit(top)){
-                        printFunAndSpace(&ptr, top);
-                    } else{
-                        printChAndSpace(&ptr, top);
-                    }
+                char* top = pop(&st);
+                if (strcmp(top, "(") != 0){
+                    printFunAndSpace(&ptr, top);
                 } 
-                else if (top == '(') break;    
+                else if (strcmp(top, "(") == 0) {
+                    free(top);  
+                    break; 
+                }
+                free(top);   
             }
         } else if (isOpenScope(cur)){
-            push(&st, cur);
+            push(&st, "(");
 
         } else if (isOperator(cur) || isComplexFun(ch)){
             int len = isComplexFun(ch);
+            char str[10];
             if (len){
-                char fun[len + 1];
-                strlcpy(fun, ch, len + 1);
-                cur =  getToken(fun);
-                ch += len - 1;
+                int i = 0;
+                for (; i < len; ++i, ch++){
+                    str[i] = *ch;
+                }
+                ch--;
+                str[i] = '\0';
+            } else {
+                str[0] = cur;
+                str[1] = '\0';
             }
             if (isEmpty(st)) 
-                push(&st, cur);
+                push(&st, str);
             else {
                 while (!isEmpty(st)){
-                    char top = pop(&st);
-                    if (isOpenScope(top)) {
+                    char *top = pop(&st);
+                    if (isOpenScope(top[0])) {
                         push(&st, top);
+                        free(top);
                         break;
                     }
-                    else if (getPriority(top) < getPriority(cur)) {
+                    else if (getPriority(top) < getPriority(str)) {
                         push(&st, top);
+                        free(top);
                         break;
                     }   
-                    else if (getPriority(top) >= getPriority(cur)) {
-                        if (isdigit(top)){
-                            printFunAndSpace(&ptr, top);
-                        } else {
-                            printChAndSpace(&ptr, top);
-                        }
+                    else if (getPriority(top) >= getPriority(str)) {
+                        printFunAndSpace(&ptr, top);
+                        free(top);
                     }
                 }
-                push(&st, cur);
+                push(&st, str);
             } 
         } 
     }
     while (!isEmpty(st)){
-        char top = pop(&st);
-        if (isdigit(top)){
-            printFunAndSpace(&ptr, top);
-        } else {
-            printChAndSpace(&ptr, top);
-        }
+        char *top = pop(&st);
+        printFunAndSpace(&ptr, top);
     }
     *ptr = '\0';
     return result;
@@ -159,21 +143,23 @@ double s21_compute(char *str){
     stack st = NULL;
     double result = 0;
     for (char *p = str; *p; p++){
+        char str[5];
+        str[0] = *p;
+        str[1] = '\0';
         if (isdigit(*p)){
             double number = convertStrToNum(&p);
             pushNum(&st, number);
-        } else if (isOperator(*p)){
+        } else if (isOperator(str[0])){
             if (!(isEmpty(st))){
-                computeOper(*p, &st);
+                computeOper(str, &st);
             } 
         } else if (isComplexFun(p)){
             int len = isComplexFun(p);
             char fun[len + 1];
             strlcpy(fun, p, len + 1);
             p += len - 1;
-            char token = getToken(fun);
             if  (!isEmpty(st)){
-                computeOper(token, &st);
+                computeOper(fun, &st);
             }
         }
     }
@@ -181,7 +167,7 @@ double s21_compute(char *str){
     return result;
 }
 
-void computeOper(char op, stack *st){
+void computeOper(char *str, stack *st){
     double b = popNum(st); 
     double a = 0;
     bool is_unary = false;
@@ -189,68 +175,52 @@ void computeOper(char op, stack *st){
         a = popNum(st);
     }
     double c;
-    switch (op)
-    {
-        case '+':
-            c = a + b;
-            break;
-        case '-':
-            c = a - b;
-            break;
-        case '*':
-            c = a * b;
-            break;
-        case '/':
-            c =  a / b;
-            break;
-        case '^':
-            c = pow(a, b);
-            is_unary = true;
-            break;
-        case '1':
-            c = cos(b);
-            is_unary = true;
-            break;
-        case '2':
-            c = sin(b);
-            is_unary = true;
-            break;
-        case '3':
-            c = tan(b);
-            is_unary = true;
-            break;
-        case '4':
-            c = acos(b);
-            is_unary = true;
-            break;
-        case '5':
-            c = asin(b);
-            is_unary = true;
-            break;
-        case '6':
-            c = atan(b);
-            is_unary = true;
-            break;
-        case '7':
-            c = sqrt(b);
-            is_unary = true;
-            break;
-        case '8':
-            c = log(b);
-            is_unary = true;
-            break;
-        case '9':
-            c = log10(b);
-            is_unary = true;
-            break;
+    if (!strcmp(str, "+")){
+        c = a + b;
+    } else if (!strcmp(str, "-")){
+        c = a - b;
+    } else if (!strcmp(str, "*")){
+        c = a * b;
+    } else if (!strcmp(str, "/")){
+        c = a / b;
+    } else if (!strcmp(str, "mod")){
+        c = fmod(a, b);
+    } else if (!strcmp(str, "cos")){
+        c = cos(b);
+        is_unary = true;
+    } else if (!strcmp(str, "sin")){
+        c = sin(b);
+        is_unary = true;
+    } else if (!strcmp(str, "tan")){
+        c = tan(b);
+        is_unary = true;
+    } else if (!strcmp(str, "acos")){
+        c = acos(b);
+        is_unary = true;
+    } else if (!strcmp(str, "asin")){
+        c = asin(b);
+        is_unary = true;
+    } else if (!strcmp(str, "atan")){
+        c = atan(b);
+        is_unary = true;
+    } else if (!strcmp(str, "sqrt")){
+        c = sqrt(b);
+        is_unary = true;
+    } else if (!strcmp(str, "ln")){
+        c = log(b);
+        is_unary = true;
+    } else if (!strcmp(str, "log")){
+        c = log10(b);
+        is_unary = true;
+    } else if (!strcmp(str, "pow")){
+        c = pow(a, b);
     }
+
     if (is_unary){
         pushNum(st, a);
     }
     pushNum(st, c); 
 }
-
-
 
 double convertStrToNum(char **str){
     char *p = *str;
@@ -272,65 +242,20 @@ int isComplexFun(char *str){
     int res = 0;
     if (*str == 'a' || (*str == 's' && *(str + 1) == 'q')){
         res = 4; 
-    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o')){
-        res = 3; //cos tan sin log
+    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o') 
+    || (*str == 'p' && *(str + 1) == 'o')){
+        res = 3; 
     } else if (*str == 'l' && *(str + 1) == 'n'){
         res = 2;
     } 
     return res;
 }
 
-
-char getToken(char *str){
-    char token = '0';
-    if (strcmp(str, "cos") == 0){
-        token = '1';
-    } else if (strcmp(str, "sin") == 0){
-        token = '2';
-    } else if (strcmp(str, "tan") == 0){
-        token = '3';
-    } else if (strcmp(str, "acos") == 0){
-        token = '4';
-    } else if (strcmp(str, "asin") == 0){
-        token = '5';
-    } else if (strcmp(str, "atan") == 0){
-        token = '6';
-    } else if (strcmp(str, "sqrt") == 0){
-        token = '7';
-    } else if (strcmp(str, "ln") == 0){
-        token = '8';
-    } else if (strcmp(str, "log") == 0){
-        token = '9';
-    }
-    return token;
-}
-
-void printFunAndSpace(char **ptr, char token){
+void printFunAndSpace(char **ptr, char *oper){
     **ptr = '\0';
-    if (token == '1'){
-        strcat(*ptr, "cos ");
-    } else if (token == '2'){
-        strcat(*ptr, "sin ");
-    }  else if (token == '3'){
-        strcat(*ptr, "tan ");
-    }  else if (token == '4'){
-        strcat(*ptr, "acos ");
-    }  else if (token == '5'){
-        strcat(*ptr, "asin ");
-    }  else if (token == '6'){
-        strcat(*ptr, "atan ");
-    }  else if (token == '7'){
-        strcat(*ptr, "sqrt ");
-    }  else if (token == '8'){
-        strcat(*ptr, "ln ");
-    }  else if (token == '9'){
-        strcat(*ptr, "log ");
-    }
-    if (token >= '4' && token <= '7'){
-        *ptr += 5;
-    } else if (token == '8'){
-        *ptr += 3;
-    } else if ((token >= '1' && token <= '3') || token == '9'){
-        *ptr += 4;
-    }
+    int len = strlen(oper);
+    strcat(*ptr, oper);
+    *ptr += len;
+    **ptr = ' ';
+    *ptr += 1; 
 }
