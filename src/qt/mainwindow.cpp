@@ -93,16 +93,16 @@ void MainWindow::on_pushButton_clicked() {
             double point_y = s21_smart_calc(input, x_ptr);
             if (!std::isnan(point_y)) {
               ui->tableWidget->setItem(
-                  i, 0, new QTableWidgetItem(QString::number(point_x)));
+                  i, 0, new QTableWidgetItem(QString::number(point_x, 'g', 8)));
               ui->tableWidget->setItem(
-                  i, 1, new QTableWidgetItem(QString::number(point_y)));
+                  i, 1, new QTableWidgetItem(QString::number(point_y, 'g', 8)));
               point_x += 1. * ui->spinBox->value() / (STEPS * PRECISION / 2);
             }
           }
           repaint();
         } else {
           ui->textEdit->setPlainText(
-              QString::number(s21_smart_calc(input, nullptr)));
+              QString::number(s21_smart_calc(input, nullptr), 'g', 8));
         }
       } else
         ui->textEdit->setText(ui->textEdit->toPlainText() +
