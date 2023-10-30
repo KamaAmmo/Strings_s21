@@ -273,7 +273,7 @@ double s21_smart_calc(char *str, double *x) {
   return res;
 }
 
-bool isCorrectInput(char *str){
+bool s21_isCorrectInput(char *str){
   bool result = true;
   int scopes = 0;
   for (char *p = str; *p; p++){

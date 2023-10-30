@@ -432,19 +432,19 @@ START_TEST(s21_final_with_x_test) {
 
 START_TEST(s21_correct_input_test){
   char *str = " 2 * at";
-  bool res = isCorrectInput(str);
+  bool res = s21_isCorrectInput(str);
   ck_assert_int_eq(res, 0);
 
   str = "2*sqrt(x)";
-  res = isCorrectInput(str);
+  res = s21_isCorrectInput(str);
   ck_assert_int_eq(res, 1);
 
   str = "(1+2)(";
-  res = isCorrectInput(str);
+  res = s21_isCorrectInput(str);
   ck_assert_int_eq(res, 0);
 
   str = ")(1+2)";
-  res = isCorrectInput(str);
+  res = s21_isCorrectInput(str);
   ck_assert_int_eq(res, 0);
 
 }

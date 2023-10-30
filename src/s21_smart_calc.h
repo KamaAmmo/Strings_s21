@@ -2,6 +2,11 @@
 #define S21_SMART_CALC_H
 #include <stdbool.h>
 
+#define EPS 1e-6
+#define STEPS 600
+#define STR_SIZE 256
+#define LONG_STR_SIZE 512
+
 typedef struct node {
   char data[10];
   double num;
@@ -33,7 +38,7 @@ void printOper(char **ptr, char *oper);
 double convertStrToNum(char **str);
 void printChar(char **write, char *read);
 void convertChToStr(char *dest, char **src, int len);
-bool isCorrectInput(char *str);
+bool s21_isCorrectInput(char *str);
 void doOperation(char *str, stack *st);
 bool isCorrectVal(char *str, stack *st);
 #endif
