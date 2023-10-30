@@ -74,6 +74,8 @@ START_TEST(s21_isComplexFun_test) {
   str = "atan";
   len = isFun(str);
   ck_assert_int_eq(len, 4);
+
+  
 }
 
 START_TEST(s21_parser_for_elem_test) {
@@ -428,6 +430,55 @@ START_TEST(s21_final_with_x_test) {
                           cos(27 * *x * 3.14) / 8 + tan(81 * *x * 3.14) / 16);
 }
 
+START_TEST(s21_correct_input_test){
+  char *str = " 2 * at";
+  bool res = isCorrectInput(str);
+  ck_assert_int_eq(res, 0);
+
+  str = "2*sqrt(x)";
+  res = isCorrectInput(str);
+  ck_assert_int_eq(res, 1);
+
+  str = "(1+2)(";
+  res = isCorrectInput(str);
+  ck_assert_int_eq(res, 0);
+
+  str = ")(1+2)";
+  res = isCorrectInput(str);
+  ck_assert_int_eq(res, 0);
+
+}
+
+START_TEST(s21_edge_cases_test){
+  char *str;
+  double res;
+
+  str = " 1 / 0";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+  str =  "ln(-2)";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+  str = "sqrt(-1)";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+  str = "log(-5)";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+  str = "acos(-5)";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+  str = "asin(5)";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_int_eq(isnan(res), 1);
+
+}
+
 Suite *s21_smart_calc_tests_create() {
   Suite *s21_smart_calc = suite_create("s21_smart_calc");
   TCase *s21_smart_calc_tests = tcase_create("S21_SMART_CALC");
@@ -442,7 +493,10 @@ Suite *s21_smart_calc_tests_create() {
   tcase_add_test(s21_smart_calc_tests, s21_compute_with_x_test);
   tcase_add_test(s21_smart_calc_tests, s21_final_test);
   tcase_add_test(s21_smart_calc_tests, s21_final_with_x_test);
+  tcase_add_test(s21_smart_calc_tests, s21_edge_cases_test);
+  tcase_add_test(s21_smart_calc_tests, s21_correct_input_test);
 
+  
   suite_add_tcase(s21_smart_calc, s21_smart_calc_tests);
 
   return s21_smart_calc;

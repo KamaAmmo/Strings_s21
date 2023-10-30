@@ -16,6 +16,7 @@ char *pop(stack *top);
 void destroy(stack *top);
 void pushNum(stack *top, double info);
 double popNum(stack *st);
+double peak(stack st);
 // //RPN
 bool isOperator(char ch);
 bool isOpenScope(char ch);
@@ -24,12 +25,15 @@ int isFun(char *str);  // if is's a function it will returns its len, else 0
 int getPriority(char *ch);
 char *s21_parser(char *str);
 double s21_compute(char *str, double *x);
-void computeOper(char *str, stack *st);
+void computeOper(char *str, stack *st, double a, double b);
 double s21_smart_calc(char *str, double *x);
+
 // //helpers
 void printOper(char **ptr, char *oper);
 double convertStrToNum(char **str);
 void printChar(char **write, char *read);
 void convertChToStr(char *dest, char **src, int len);
-void printToStrFromStack(stack *st, char **str);
+bool isCorrectInput(char *str);
+void doOperation(char *str, stack *st);
+bool isCorrectVal(char *str, stack *st);
 #endif
