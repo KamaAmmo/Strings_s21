@@ -1,17 +1,9 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
+
 #include "s21_smart_calc.h"
-
-
-// void display(stack top) {
-//   while (top != NULL) {
-//     putchar((*top).data);
-//     top = (*top).next;
-//   }
-//   putchar(' ');
-// }
 
 char isEmpty(stack top) {
   if (top == NULL) return true;
@@ -20,9 +12,8 @@ char isEmpty(stack top) {
 
 void push(stack *top, char *info) {
   node *newnode = (node *)malloc(sizeof(node));
-  // newnode->data = info;
   int i = 0;
-  for (; i < strlen(info); ++i){
+  for (; i < strlen(info); ++i) {
     newnode->data[i] = info[i];
   }
   newnode->data[i] = '\0';
@@ -30,14 +21,14 @@ void push(stack *top, char *info) {
   *top = newnode;
 }
 
-void pushNum(stack *top, double info){
+void pushNum(stack *top, double info) {
   node *newnode = (node *)malloc(sizeof(node));
   newnode->num = info;
   newnode->next = *top;
   *top = newnode;
 }
 
-char* pop(stack *top) {
+char *pop(stack *top) {
   char *result = (char *)malloc(sizeof((*top)->data) * strlen((*top)->data));
   strcpy(result, (*top)->data);
   node *temp = *top;
@@ -47,10 +38,6 @@ char* pop(stack *top) {
 }
 
 double popNum(stack *top) {
-  if (isEmpty(*top)) {
-    // printf("Stack is empty");
-    return -1;
-  }
   double result = (*top)->num;
   node *temp = *top;
   *top = (*top)->next;
@@ -65,4 +52,3 @@ void destroy(stack *top) {
     free(temp);
   }
 }
-

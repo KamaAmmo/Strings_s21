@@ -8,22 +8,19 @@ typedef struct node {
   struct node *next;
 } node;
 
-
 typedef node *stack;
-//stack
+// stack
 char isEmpty(stack top);
 void push(stack *top, char *data);
 char *pop(stack *top);
-// void display(stack top);
 void destroy(stack *top);
 void pushNum(stack *top, double info);
 double popNum(stack *st);
-// //RPN 
-bool isOperand(char ch);
+// //RPN
 bool isOperator(char ch);
 bool isOpenScope(char ch);
 bool isCloseScope(char ch);
-int isFun(char *str); //if functions returns len, else 0
+int isFun(char *str);  // if is's a function it will returns its len, else 0
 int getPriority(char *ch);
 char *s21_parser(char *str);
 double s21_compute(char *str, double *x);
