@@ -66,9 +66,3 @@ void destroy(stack *top) {
   }
 }
 
-// void pushStrToStack(stack *st, char *str){
-//     int len = strlen(str);
-//     for (int i = 0; i < len; i++){
-//         push(st, str[len - 1 - i]);
-//     }
-// }

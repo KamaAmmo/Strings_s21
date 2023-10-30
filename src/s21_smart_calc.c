@@ -54,117 +54,55 @@ int getPriority(char *str){
     return res;
 }
 
-double s21_calculate(char *str) {
-    char *postfix = s21_parser(str);
-    double res = s21_compute(postfix);
-    free(postfix);
+void printChar(char **write, char *read){
+    **write = *read;
+    (*write)++;
+    //если след не цифра и не . тогда ставим пробел // после числа должны быть пробелы
+    if ( !(isdigit(*(read + 1))) && (*(read + 1) != '.')){
+        **write = ' ';
+        (*write)++;
+    } 
+}
+
+void convertChToStr(char *dest, char **src, int len){
+    if (len){
+        strlcpy(dest, *src, len + 1);
+        *src += len - 1;
+    } else {
+        dest[0] = **src;
+        dest[1] = '\0';
+    }
+}
+
+double convertStrToNum(char **str){
+    char *p = *str;
+    int len = 0;
+    for (; isdigit(*p) || *p == '.'; len++, p++){}
+    double result = strtod(*str, &p);
+    *str = *(str) + len;
+    return result;
+}
+
+int isFun(char *str){
+    int res = 0;
+    if (*str == 'a' || (*str == 's' && *(str + 1) == 'q')){
+        res = 4; 
+    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o') 
+    || (*str == 'p' && *(str + 1) == 'o') || (*str == 'm' && *(str + 1) == 'o' )){
+        res = 3; 
+    } else if (*str == 'l' && *(str + 1) == 'n'){
+        res = 2;
+    } 
     return res;
 }
 
-char *s21_parser(char *str){
-    stack st = NULL;
-    char *result = (char *)malloc(sizeof(char) * 255);
-    char *ptr = result;
-    for (char *ch  = str; *ch != '\0'; ++ch){
-        char cur = *ch;
-        if (isdigit(cur) || cur == '.'){
-            *ptr = cur;
-            ptr++;
-
-            if ( *(ch + 1) && !(isdigit(*(ch + 1))) && (*(ch + 1) != '.') ){
-                *ptr = ' ';
-                ptr++;
-            } else if (!*(ch + 1)){
-                *ptr = ' ';
-                ptr++;
-            }
-        } else if (isCloseScope(cur)){
-            while (!isEmpty(st)){
-                char* top = pop(&st);
-                if (strcmp(top, "(") != 0){
-                    printFunAndSpace(&ptr, top);
-                } 
-                else if (strcmp(top, "(") == 0) {
-                    free(top);  
-                    break; 
-                }
-                free(top);   
-            }
-        } else if (isOpenScope(cur)){
-            push(&st, "(");
-
-        } else if (isOperator(cur) || isComplexFun(ch)){
-            int len = isComplexFun(ch);
-            char str[10];
-            if (len){
-                int i = 0;
-                for (; i < len; ++i, ch++){
-                    str[i] = *ch;
-                }
-                ch--;
-                str[i] = '\0';
-            } else {
-                str[0] = cur;
-                str[1] = '\0';
-            }
-            if (isEmpty(st)) 
-                push(&st, str);
-            else {
-                while (!isEmpty(st)){
-                    char *top = pop(&st);
-                    if (isOpenScope(top[0])) {
-                        push(&st, top);
-                        free(top);
-                        break;
-                    }
-                    else if (getPriority(top) < getPriority(str)) {
-                        push(&st, top);
-                        free(top);
-                        break;
-                    }   
-                    else if (getPriority(top) >= getPriority(str)) {
-                        printFunAndSpace(&ptr, top);
-                        free(top);
-                    }
-                }
-                push(&st, str);
-            } 
-        } 
-    }
-    while (!isEmpty(st)){
-        char *top = pop(&st);
-        printFunAndSpace(&ptr, top);
-    }
-    *ptr = '\0';
-    return result;
-}
-
-double s21_compute(char *str){
-    stack st = NULL;
-    double result = 0;
-    for (char *p = str; *p; p++){
-        char str[5];
-        str[0] = *p;
-        str[1] = '\0';
-        if (isdigit(*p)){
-            double number = convertStrToNum(&p);
-            pushNum(&st, number);
-        } else if (isOperator(str[0])){
-            if (!(isEmpty(st))){
-                computeOper(str, &st);
-            } 
-        } else if (isComplexFun(p)){
-            int len = isComplexFun(p);
-            char fun[len + 1];
-            strlcpy(fun, p, len + 1);
-            p += len - 1;
-            if  (!isEmpty(st)){
-                computeOper(fun, &st);
-            }
-        }
-    }
-    result = popNum(&st);
-    return result;
+void printOper(char **ptr, char *oper){
+    **ptr = '\0';
+    int len = strlen(oper);
+    strcat(*ptr, oper);
+    *ptr += len;
+    **ptr = ' ';
+    *ptr += 1; 
 }
 
 void computeOper(char *str, stack *st){
@@ -222,40 +160,107 @@ void computeOper(char *str, stack *st){
     pushNum(st, c); 
 }
 
-double convertStrToNum(char **str){
-    char *p = *str;
-    int len = 0;
-    for (; isdigit(*p) || *p == '.'; len++, p++){}
-    double result = strtod(*str, &p);
-    *str = *(str) + len;
+char *s21_parser(char *str){
+    stack st = NULL;
+    char *result = (char *)malloc(sizeof(char) * 255);
+    char *ptr = result;
+    for (char *ch  = str; *ch != '\0'; ++ch){
+        char cur = *ch;
+        if (isdigit(cur) || cur == '.' || cur == 'x'){
+            printChar(&ptr, ch);
+        } else if (isCloseScope(cur)){
+            while (!isEmpty(st)){
+                char* top = pop(&st);
+                if (strcmp(top, "(") != 0){
+                    printOper(&ptr, top);
+                } 
+                else if (strcmp(top, "(") == 0) {
+                    free(top);  
+                    break; 
+                }
+                free(top); 
+            }
+        } else if (isOpenScope(cur)){
+            push(&st, "(");
+
+        } else if (isOperator(cur) || isFun(ch)){
+            int len = isFun(ch);
+            char str[10];
+            convertChToStr(str, &ch, len);
+            if (isEmpty(st)) 
+                push(&st, str);
+            else {
+                while (!isEmpty(st)){
+                    char *top = pop(&st);
+                    if (isOpenScope(top[0])) {
+                        push(&st, top);
+                        free(top);
+                        break;
+                    }
+                    else if (getPriority(top) < getPriority(str)) {
+                        push(&st, top);
+                        free(top);
+                        break;
+                    }   
+                    else if (getPriority(top) >= getPriority(str)) {
+                        printOper(&ptr, top);
+                    }
+                    free(top);
+
+                }
+                push(&st, str);
+            } 
+        } 
+    }
+    while (!isEmpty(st)){
+        char *top = pop(&st);
+        printOper(&ptr, top);
+        free(top);
+    }
+    *ptr = '\0';
     return result;
 }
 
-void printChAndSpace(char **str, char top){
-    **str = top;
-    (*str)++;
-    **str = ' ';
-    (*str)++;
+double s21_compute(char *str, double *x){
+    stack st = NULL;
+    double result = 0;
+    for (char *p = str; *p; p++){
+        char str[5];
+        str[0] = *p;
+        str[1] = '\0';
+        if (isdigit(*p)){
+            double number = convertStrToNum(&p);
+            pushNum(&st, number);
+        } else if (*p == 'x' && x != NULL){
+            pushNum(&st, *x);
+        } else if (isOperator(str[0])){
+            if (!(isEmpty(st))){
+                computeOper(str, &st);
+            } 
+        } else if (isFun(p)){
+            int len = isFun(p);
+            char fun[len + 1];
+            strlcpy(fun, p, len + 1);
+            p += len - 1;
+            if  (!isEmpty(st)){
+                computeOper(fun, &st);
+            }
+        }
+    }
+    result = popNum(&st);
+    destroy(&st);
+    return result;
 }
 
-int isComplexFun(char *str){
-    int res = 0;
-    if (*str == 'a' || (*str == 's' && *(str + 1) == 'q')){
-        res = 4; 
-    } else if (*str =='c' || *str == 't' || (*str == 's' && *(str + 1) == 'i') || (*str == 'l' && *(str + 1) == 'o') 
-    || (*str == 'p' && *(str + 1) == 'o')){
-        res = 3; 
-    } else if (*str == 'l' && *(str + 1) == 'n'){
-        res = 2;
-    } 
+double s21_smart_calc(char *str, double *x) {
+    char *postfix = s21_parser(str);
+    char *ptr = postfix;
+    double res;
+    if (x == NULL){
+        res =  s21_compute(postfix, NULL);
+    } else{
+        res = s21_compute(postfix, x);
+    }
+    free(ptr);
     return res;
-}
-
-void printFunAndSpace(char **ptr, char *oper){
-    **ptr = '\0';
-    int len = strlen(oper);
-    strcat(*ptr, oper);
-    *ptr += len;
-    **ptr = ' ';
-    *ptr += 1; 
 }
