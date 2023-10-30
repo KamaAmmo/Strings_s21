@@ -1,6 +1,6 @@
-CC=gcc
+CC=gcc 
 PKGCONFIG = $(shell which pkg-config) 
-CFLAGS=-Wall -Wextra -Werror #$(shell $(PKGCONFIG) --cflags gtk4) #-fsanitize=address
+CFLAGS= -Wall -Wextra -Werror #$(shell $(PKGCONFIG) --cflags gtk4) #-fsanitize=address
 SOURCES=calc_functions/*.c
 TEST_SOURCES=calc_functions/*.c tests/*.c 
 UNAME_S=$(shell uname -s)
@@ -10,9 +10,7 @@ ifeq ($(UNAME_S),Linux)
 LDFLAGS= -lm -lcheck -lpthread 
 OPEN := xdg-open
 endif
-ifeq ($(UNAME_S),Darwin)
-LDFLAGS= -lm -lcheck -lpthread
-endif
+
 
 all: install
 
@@ -66,8 +64,7 @@ clean:
 	rm -rf ./report
 
 lib:
-	$(CC) -c $(SOURCES) (LDFLAGS)
+	$(CC) $(CFLAGS) -c $(SOURCES) $(LDFLAGS)
 	ar -rc libcalc.a *.o
 	ranlib libcalc.a
 
-.PHONY: all test clean lib gcov_report
