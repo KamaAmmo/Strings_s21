@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.1, 2023-10-30T19:07:16. -->
+<!-- Written by QtCreator 8.0.1, 2023-10-31T00:17:20. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -241,8 +241,9 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/Jojo/s21/C7_SmartCalc_v1_0-1-develop/C7_SmartCalc_v1.0-1-develop/src/qt/s21_smart_calc.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/Jojo/s21/C7_SmartCalc_v1_0-1-develop/C7_SmartCalc_v1.0-1-develop/src/qt/s21_smart_calc.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">s21_smart_calc2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/Jojo/s21/C7_SmartCalc_v1.0-1/src/qt/s21_smart_calc.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/Jojo/s21/C7_SmartCalc_v1.0-1/src/qt/s21_smart_calc.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

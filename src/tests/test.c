@@ -48,6 +48,10 @@ START_TEST(s21_convertStrToNum_test) {
   str = "120.567tza";
   res = convertStrToNum(&str);
   ck_assert_double_eq(res, 120.567);
+  
+  str = "2.58";
+  res = convertStrToNum(&str);
+  ck_assert_double_eq(res, 2.58);
 }
 
 START_TEST(s21_isComplexFun_test) {
@@ -142,6 +146,11 @@ START_TEST(s21_parser_for_elem_test) {
   str = "2*(12*x*x+25)";
   res = s21_parser(str);
   ck_assert_str_eq(res, "2 12 x * x * 25 + * ");
+  free(res);
+
+  str = "1.25+4";
+  res = s21_parser(str);
+  ck_assert_str_eq(res, "1.25 4 + ");
   free(res);
 }
 
@@ -375,6 +384,10 @@ START_TEST(s21_final_test) {
   res = s21_smart_calc(str, NULL);
   ck_assert_double_eq(res, sqrt(12.5 * 2 * 3 + 25));
 
+  str = "1.25 + 1";
+  res = s21_smart_calc(str, NULL);
+  ck_assert_double_eq(res, 1.25 + 1);
+
   str = "cos(sqrt(12.5*2*3+25)/2)*4.5";
   res = s21_smart_calc(str, NULL);
   ck_assert_double_eq(res, cos(sqrt(12.5 * 2 * 3 + 25) / 2) * 4.5);
@@ -446,6 +459,26 @@ START_TEST(s21_correct_input_test){
   str = ")(1+2)";
   res = s21_isCorrectInput(str);
   ck_assert_int_eq(res, 0);
+
+  str = "12.3 + 412.4";
+  res = s21_isCorrectInput(str);
+  ck_assert_int_eq(res, 1);
+
+  str = "12.3.4 + 5";
+  res = s21_isCorrectInput(str);
+  ck_assert_int_eq(res, 0);
+
+  str = "xx + 2";
+  res = s21_isCorrectInput(str);
+  ck_assert_int_eq(res, 0); 
+
+  str = "x.5.2 + 2";
+  res = s21_isCorrectInput(str);
+  ck_assert_int_eq(res, 0); 
+
+  str = "2.1+ .3";
+  res = s21_isCorrectInput(str);
+  ck_assert_int_eq(res, 0); 
 
 }
 

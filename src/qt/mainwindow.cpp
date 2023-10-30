@@ -3,15 +3,16 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
+
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   MainWindow::on_action_triggered();
   free_coord_table();
-
+  setlocale(LC_NUMERIC, "C");
   QList<QSpinBox *> allSBox = findChildren<QSpinBox *>();
   for (int i = 0; i < allSBox.size(); i++) {
     QSpinBox *cur = allSBox.at(i);
-    QObject::connect(cur, SIGNAL(valueChanged(int)), this, SLOT(pushBoxKeys()));
+    QObject::connect(cur, SIGNAL(valueChanged(int   )), this, SLOT(pushBoxKeys()));
   }
 
   QList<QPushButton *> allPButtons = findChildren<QPushButton *>();
@@ -25,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     if (i == allPButtons.size()) break;
     QObject::connect(cur, SIGNAL(clicked()), this, SLOT(pushButtonKeys()));
   }
-  // on_pushButton_clicked();
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -77,74 +77,32 @@ void MainWindow::paintEvent(QPaintEvent *event) {
   }
 }
 
-//void MainWindow::on_pushButton_clicked() {
-//  free_coord_table();
-//  if (ui->textEdit->toPlainText().size() != 0) {
-//    if (ui->textEdit->toPlainText().size() < STR_SIZE) {
-//      QByteArray ba = ui->textEdit->toPlainText().toLocal8Bit();
-//      char *str = s21_inputstring(ba.data());
-//      if (strlen(str)) {
-//        char *out_str = s21_process(str);
-//        if (strlen(out_str)) {
-//          if (strchr(out_str, VAR)) {
-//            ui->tableWidget->setRowCount(STEPS * PRECISION + 1);
-//            double point_x = -ui->spinBox->value();
-//            for (int i = 0; i <= STEPS * PRECISION; i++) {
-//              double point_y = s21_calc(out_str, point_x);
-//              ui->tableWidget->setItem(
-//                  i, 0, new QTableWidgetItem(QString::number(point_x)));
-//              ui->tableWidget->setItem(
-//                  i, 1, new QTableWidgetItem(QString::number(point_y)));
-//              point_x += 1. * ui->spinBox->value() /
-//                         (STEPS * PRECISION / 2);
-//            }
-//            repaint();
-//          } else
-//            ui->textEdit->setText(QString::number(s21_calc(out_str, 0)));
-//        } else
-//          ui->textEdit->setText(ui->textEdit->toPlainText() +
-//                                "\nError: Bad order");
-//        free(out_str);
-//      } else
-//        ui->textEdit->setText(ui->textEdit->toPlainText() +
-//                              "\nError: Incorrect data");
-//      free(str);
-//    } else
-//      ui->textEdit->setText(ui->textEdit->toPlainText() +
-//                            "\nError: string is too big (> 255 chars)");
-//  } else
-//    ui->textEdit->setText("\nError: Empty string");
-//}
-
-
 void MainWindow::on_pushButton_clicked() {
   free_coord_table();
   if (ui->textEdit->toPlainText().size() != 0) {
     if (ui->textEdit->toPlainText().size() < STR_SIZE) {
-      QByteArray ba = ui->textEdit->toPlainText().toLocal8Bit();
+      QByteArray ba = ui->textEdit->toPlainText().toUtf8();
       char *input = ba.data();
       bool is_correct_input = s21_isCorrectInput(input);
       if (is_correct_input) {
-
-          if (strchr(ba, 'x')) {
-            ui->tableWidget->setRowCount(STEPS * PRECISION + 1);
-            double point_x = -ui->spinBox->value();
-            double *x_ptr = &point_x;
-            for (int i = 0; i <= STEPS * PRECISION; i++) {
-              double point_y = s21_smart_calc(input, x_ptr);
-              if (!std::isnan(point_y)){
-                ui->tableWidget->setItem(
-                    i, 0, new QTableWidgetItem(QString::number(point_x)));
-                ui->tableWidget->setItem(
-                    i, 1, new QTableWidgetItem(QString::number(point_y)));
-                point_x += 1. * ui->spinBox->value() /
-                            (STEPS * PRECISION / 2);
-              }
+        if (strchr(input, 'x')) {
+          ui->tableWidget->setRowCount(STEPS * PRECISION + 1);
+          double point_x = -ui->spinBox->value();
+          double *x_ptr = &point_x;
+          for (int i = 0; i <= STEPS * PRECISION; i++) {
+            double point_y = s21_smart_calc(input, x_ptr);
+            if (!std::isnan(point_y)) {
+              ui->tableWidget->setItem(
+                  i, 0, new QTableWidgetItem(QString::number(point_x)));
+              ui->tableWidget->setItem(
+                  i, 1, new QTableWidgetItem(QString::number(point_y)));
+              point_x += 1. * ui->spinBox->value() / (STEPS * PRECISION / 2);
             }
-            repaint();
-          } else
-            ui->textEdit->setText(QString::number(s21_smart_calc(input, nullptr)));
-
+          }
+          repaint();
+        } else{
+            ui->textEdit->setPlainText(QString::number(s21_smart_calc(input, nullptr)));
+        }
       } else
         ui->textEdit->setText(ui->textEdit->toPlainText() +
                               "\nError: Incorrect data");
@@ -238,6 +196,4 @@ void MainWindow::pushButtonKeys() {
   }
 }
 
-void MainWindow::on_action_triggered() {
-  ui->groupBox->setVisible(true);
-}
+void MainWindow::on_action_triggered() { ui->groupBox->setVisible(true); }

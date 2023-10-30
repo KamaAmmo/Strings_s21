@@ -78,13 +78,14 @@ double convertStrToNum(char **str) {
 
 int isFun(char *str) {
   int res = 0;
-  if (!strncmp(str, "acos", 4) || !strncmp(str, "asin", 4) || !strncmp(str, "atan", 4) || 
-  !strncmp(str, "sqrt", 4)) {
+  if (!strncmp(str, "acos", 4) || !strncmp(str, "asin", 4) ||
+      !strncmp(str, "atan", 4) || !strncmp(str, "sqrt", 4)) {
     res = 4;
-  } else if (!strncmp(str, "cos", 3) || !strncmp(str, "sin", 3) || !strncmp(str, "tan", 3)  ||
-             !strncmp(str, "log", 3)  || !strncmp(str, "mod", 3) ) {
+  } else if (!strncmp(str, "cos", 3) || !strncmp(str, "sin", 3) ||
+             !strncmp(str, "tan", 3) || !strncmp(str, "log", 3) ||
+             !strncmp(str, "mod", 3)) {
     res = 3;
-  } else if (!strncmp(str, "ln", 2) ) {
+  } else if (!strncmp(str, "ln", 2)) {
     res = 2;
   }
   return res;
@@ -100,7 +101,6 @@ void printOper(char **ptr, char *oper) {
 }
 
 void computeOper(char *str, stack *st, double a, double b) {
-
   bool is_unary = false;
 
   double c;
@@ -144,7 +144,7 @@ void computeOper(char *str, stack *st, double a, double b) {
   } else if (!strcmp(str, "^")) {
     c = pow(a, b);
   } else {
-      c = NAN;
+    c = NAN;
   }
 
   if (is_unary) {
@@ -167,7 +167,7 @@ double s21_compute(char *str, double *x) {
     } else if (*p == 'x' && x != NULL) {
       pushNum(&st, *x);
     } else if (isOperator(ptr[0])) {
-      if (!isCorrectVal(ptr, &st)){
+      if (!isCorrectVal(ptr, &st)) {
         break;
       }
     } else if (isFun(p)) {
@@ -176,7 +176,7 @@ double s21_compute(char *str, double *x) {
       strncpy(fun, p, len);
       fun[len] = '\0';
       p += len - 1;
-      if(!isCorrectVal(fun, &st)){
+      if (!isCorrectVal(fun, &st)) {
         break;
       }
     }
@@ -185,21 +185,20 @@ double s21_compute(char *str, double *x) {
   destroy(&st);
   return result;
 }
-bool isCorrectVal(char *str, stack *st){
-  if (!isEmpty(*st)){
+bool isCorrectVal(char *str, stack *st) {
+  if (!isEmpty(*st)) {
     doOperation(str, st);
   }
   bool result = true;
-  if (isnan(peak(*st))){
+  if (isnan(peak(*st))) {
     result = false;
   }
   return result;
-  
 }
-void doOperation(char *str, stack *st){
+void doOperation(char *str, stack *st) {
   double b = popNum(st);
   double a = 0;
-  if (!(isEmpty(*st))){
+  if (!(isEmpty(*st))) {
     a = popNum(st);
   }
   computeOper(str, st, a, b);
@@ -262,7 +261,6 @@ char *s21_parser(char *str) {
   return result;
 }
 
-
 double s21_smart_calc(char *str, double *x) {
   char *postfix = s21_parser(str);
   double res;
@@ -275,33 +273,49 @@ double s21_smart_calc(char *str, double *x) {
   return res;
 }
 
-bool s21_isCorrectInput(char *str){
-  bool result = true;
+bool s21_isCorrectInput(char *str) {
+  bool result = true; 
   int scopes = 0;
-  for (char *p = str; *p; p++){
-    if(!isdigit(*p) && *p != ' ' && !isOperator(*p) && !isOpenScope(*p) && !isCloseScope(*p) && *p != 'x'){
+  int count_dots = 0;
+  for (char *p = str; *p; p++) {
+
+    if (!isdigit(*p) && *p != ' ' && !isOperator(*p) && !isOpenScope(*p) &&
+        !isCloseScope(*p) && *p != 'x' && *p != '.') {
       int is_fun = isFun(p);
-      if (!is_fun){
+      if (!is_fun) {
         result = false;
         break;
       } else {
         p += is_fun - 1;
       }
     }
-    if (isOpenScope(*p)){
-      scopes++;
-    } else if (isCloseScope(*p)){
-      scopes--;
+    if (*p == '.'){
+      count_dots++;
+      if (count_dots > 1 || !isdigit(*(p - 1))){
+        result = false;
+        break;
+      }
+    } else if (!isdigit(*p) && *p != 'x'){
+      count_dots = 0;
     }
-    if (scopes < 0){
+    if (*p == 'x' && *(p+1) == 'x'){
       result = false;
       break;
     }
+    
 
+    if (isOpenScope(*p)) {
+      scopes++;
+    } else if (isCloseScope(*p)) {
+      scopes--;
+    }
+    if (scopes < 0) {
+      result = false;
+      break;
+    }
   }
-  if (scopes != 0){
+  if (scopes != 0) {
     result = false;
   }
   return result;
 }
-

@@ -19,12 +19,8 @@ all: install
 test: clean
 	$(CC) $(CFLAGS) $(TEST_SOURCES) $(LDFLAGS) $(GCOV_FLAGS) -o ./tests/test
 	./tests/test
-
-# gcov_report: test
-# 	./test
-# 	lcov --exclude *calc_functions.c -t "report" -o report.info -c -d .
-# 	genhtml -o "html_report" report.info
-# 	open html_report/index.html
+run: install
+	./s21_smart_calc/s21_smart_calc
 
 gcov_report: clean test
 	lcov -t "gcovreport" -o gcovreport.info -c -d .
@@ -53,11 +49,13 @@ dvi:
 dist: install
 	tar -czf s21_smart_calc.tar.gz --directory=s21_smart_calc/ .
 
-clang-format:
-	clang-format -style=google -i calc_functions/*.c calc_functions/*.h
-	clang-format -style=google -i qt/*.h qt/*.cpp
+cln:
 	clang-format -style=google -n calc_functions/*.c calc_functions/*.h
 	clang-format -style=google -n qt/*.h qt/*.cpp
+
+cli:
+	clang-format -style=google -i calc_functions/*.c calc_functions/*.h
+	clang-format -style=google -i qt/*.h qt/*.cpp
 
 cppcheck:
 	cppcheck --enable=all --suppress=missingIncludeSystem calc_functions/*.c calc_functions/*.h qt/*.h qt/*.cpp

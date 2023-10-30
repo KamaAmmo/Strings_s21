@@ -10,9 +10,7 @@ char isEmpty(stack top) {
   return false;
 }
 
-double peak(stack top) {
-  return (*top).num;
-}
+double peak(stack top) { return (*top).num; }
 
 void push(stack *top, char *info) {
   node *newnode = (node *)malloc(sizeof(node));
