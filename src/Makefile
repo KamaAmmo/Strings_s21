@@ -38,7 +38,7 @@ uninstall:
 	rm -rf s21_smart_calc
 	#rm ${HOME}/Desktop/Smart\ Calc\ v1.0
 
-val: install 
+val: test
 	CK_FORK=no valgrind --tool=memcheck --leak-check=yes  ./tests/test
 
 dvi:

@@ -274,11 +274,10 @@ double s21_smart_calc(char *str, double *x) {
 }
 
 bool s21_isCorrectInput(char *str) {
-  bool result = true; 
+  bool result = true;
   int scopes = 0;
   int count_dots = 0;
   for (char *p = str; *p; p++) {
-
     if (!isdigit(*p) && *p != ' ' && !isOperator(*p) && !isOpenScope(*p) &&
         !isCloseScope(*p) && *p != 'x' && *p != '.') {
       int is_fun = isFun(p);
@@ -289,20 +288,19 @@ bool s21_isCorrectInput(char *str) {
         p += is_fun - 1;
       }
     }
-    if (*p == '.'){
+    if (*p == '.') {
       count_dots++;
-      if (count_dots > 1 || !isdigit(*(p - 1))){
+      if (count_dots > 1 || !isdigit(*(p - 1))) {
         result = false;
         break;
       }
-    } else if (!isdigit(*p) && *p != 'x'){
+    } else if (!isdigit(*p) && *p != 'x') {
       count_dots = 0;
     }
-    if (*p == 'x' && *(p+1) == 'x'){
+    if (*p == 'x' && *(p + 1) == 'x') {
       result = false;
       break;
     }
-    
 
     if (isOpenScope(*p)) {
       scopes++;

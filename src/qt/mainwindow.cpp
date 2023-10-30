@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
   QList<QSpinBox *> allSBox = findChildren<QSpinBox *>();
   for (int i = 0; i < allSBox.size(); i++) {
     QSpinBox *cur = allSBox.at(i);
-    QObject::connect(cur, SIGNAL(valueChanged(int   )), this, SLOT(pushBoxKeys()));
+    QObject::connect(cur, SIGNAL(valueChanged(int)), this, SLOT(pushBoxKeys()));
   }
 
   QList<QPushButton *> allPButtons = findChildren<QPushButton *>();
@@ -100,8 +100,9 @@ void MainWindow::on_pushButton_clicked() {
             }
           }
           repaint();
-        } else{
-            ui->textEdit->setPlainText(QString::number(s21_smart_calc(input, nullptr)));
+        } else {
+          ui->textEdit->setPlainText(
+              QString::number(s21_smart_calc(input, nullptr)));
         }
       } else
         ui->textEdit->setText(ui->textEdit->toPlainText() +
