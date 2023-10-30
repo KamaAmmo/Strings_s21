@@ -28,7 +28,7 @@ bool isOperator(char ch) {
 }
 
 int getPriority(char *str) {
-  int res;
+  int res = 0;
   if (strcmp(str, "cos") == 0 || strcmp(str, "sin") == 0 ||
       strcmp(str, "tan") == 0 || strcmp(str, "acos") == 0 ||
       strcmp(str, "asin") == 0 || strcmp(str, "atan") == 0 ||
@@ -57,7 +57,8 @@ void printChar(char **write, char *read) {
 
 void convertChToStr(char *dest, char **src, int len) {
   if (len) {
-    strlcpy(dest, *src, len + 1);
+    strncpy(dest, *src, len);
+    dest[len] = '\0';
     *src += len - 1;
   } else {
     dest[0] = **src;
@@ -172,7 +173,8 @@ double s21_compute(char *str, double *x) {
     } else if (isFun(p)) {
       int len = isFun(p);
       char fun[len + 1];
-      strlcpy(fun, p, len + 1);
+      strncpy(fun, p, len);
+      fun[len] = '\0';
       p += len - 1;
       if(!isCorrectVal(fun, &st)){
         break;

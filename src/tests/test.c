@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "s21_smart_calc.h"
+#include "../calc_functions/s21_smart_calc.h"
 
 START_TEST(s21_stack_test) {
   stack st = NULL;

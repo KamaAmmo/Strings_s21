@@ -1,55 +1,75 @@
-#FLAGS = -Wall -Wextra -Werror -std=c11
-FLAGS = -std=c11
-GCOVFLAGS = -fprofile-arcs -ftest-coverage
-TST_LIBS = -lcheck
-LIB_NAME = s21_smartcalc
-SRCS=s21_stack.c s21_smart_calc.c
-OBJS=$(SRCS:.c=.o)
+CC=gcc
+PKGCONFIG = $(shell which pkg-config) 
+CFLAGS=-Wall -Wextra -Werror #$(shell $(PKGCONFIG) --cflags gtk4) #-fsanitize=address
+SOURCES=calc_functions/*.c
+TEST_SOURCES=calc_functions/*.c tests/*.c 
+UNAME_S=$(shell uname -s)
+GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 OPEN := open
-ifeq ($(shell uname), Linux)
-	TST_LIBS += -lpthread -lrt -lm
-	OPEN := xdg-open
+ifeq ($(UNAME_S),Linux)
+LDFLAGS= -lm -lcheck -lpthread 
+OPEN := xdg-open
+endif
+ifeq ($(UNAME_S),Darwin)
+LDFLAGS= -lm -lcheck -lpthread
 endif
 
-all: test
+all: install
 
-lol: 
-	gcc s21_smart_calc.c s21_stack.c -o lol
-	./lol
+test: clean
+	$(CC) $(CFLAGS) $(TEST_SOURCES) $(LDFLAGS) $(GCOV_FLAGS) -o ./tests/test
+	./tests/test
 
-dbg:
-	gcc -g huila.c
-	gdb a.out
-
-run:
-	gcc s21_stack.c -o main
-	./main
-
-$(LIB_NAME).a: $(OBJS)
-	ar rc $(LIB_NAME).a $^
-	ranlib $(LIB_NAME).a
-
-test: clean $(LIB_NAME).a
-	$(CC) $(FLAGS) test.c $(LIB_NAME).a $(TST_LIBS) -o test
-	./test
+# gcov_report: test
+# 	./test
+# 	lcov --exclude *calc_functions.c -t "report" -o report.info -c -d .
+# 	genhtml -o "html_report" report.info
+# 	open html_report/index.html
 
 gcov_report: clean test
-	gcc $(CFLAGS) $(SRCS)  test.c  $(TST_LIBS) $(GCOVFLAGS) -o gcovreport
-	./gcovreport
 	lcov -t "gcovreport" -o gcovreport.info -c -d .
 	genhtml -o report gcovreport.info
 	rm -rf gcovreport gcovreport.info *.gcda *.gcno 
 	$(OPEN) ./report/index.html
 
+install:
+	rm -rf s21_smart_calc
+	mkdir s21_smart_calc
+	qmake6 qt/s21_smart_calc.pro -o s21_smart_calc
+	cd s21_smart_calc && make && cd ../
+	#chmod +x s21_smart_calc/s21_smart_calc
+	#ln -s ${PWD}/s21_smart_calc/qt_smart_calc.app ${HOME}/Desktop/Smart_Calc\_v1.0
+
+uninstall:
+	rm -rf s21_smart_calc
+	#rm ${HOME}/Desktop/Smart\ Calc\ v1.0
+
+val: install 
+	CK_FORK=no valgrind --tool=memcheck --leak-check=yes  ./tests/test
+
+dvi:
+	$(OPEN) Readme.html
+
+dist: install
+	tar -czf s21_smart_calc.tar.gz --directory=s21_smart_calc/ .
+
+clang-format:
+	clang-format -style=google -i calc_functions/*.c calc_functions/*.h
+	clang-format -style=google -i qt/*.h qt/*.cpp
+	clang-format -style=google -n calc_functions/*.c calc_functions/*.h
+	clang-format -style=google -n qt/*.h qt/*.cpp
+
+cppcheck:
+	cppcheck --enable=all --suppress=missingIncludeSystem calc_functions/*.c calc_functions/*.h qt/*.h qt/*.cpp
 
 clean:
-	rm -rf *.o test *.a *.gcno *.gcda *.gcov *.html *.css *.info ./report *.out ./lol
+	rm -rf obj *.a test html_report report.info program *.o *.gch calc_functions/*.gch *.gcno *.gcda s21_smart_calc.tar.gz .qmake.stash
+	rm -rf ./tests/*.gcda ./tests/*.gcno ./tests/test ./calc_functions/*.o  ./calc_functions/*.a
+	rm -rf ./report
 
-cln:
-	clang-format -style=Google -n *.c *.h
+lib:
+	$(CC) -c $(SOURCES) (LDFLAGS)
+	ar -rc libcalc.a *.o
+	ranlib libcalc.a
 
-cli:
-	clang-format -style=Google -i *.c *.h
-
-val: test
-	CK_FORK=no valgrind --tool=memcheck --leak-check=yes  ./test
+.PHONY: all test clean lib gcov_report

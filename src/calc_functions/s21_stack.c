@@ -16,7 +16,7 @@ double peak(stack top) {
 
 void push(stack *top, char *info) {
   node *newnode = (node *)malloc(sizeof(node));
-  int i = 0;
+  size_t i = 0;
   for (; i < strlen(info); ++i) {
     newnode->data[i] = info[i];
   }
